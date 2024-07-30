@@ -1,0 +1,29 @@
+networks:
+  t2_proxy:
+    external: true
+  petermac_com:
+    driver: bridge
+services:
+  crowdsec:
+    image: crowdsecurity/crowdsec
+    container_name: crowdsec
+    environment:
+      PUID: ${PUID}
+      PGID: ${PUID}
+      TX: ${TZ}
+      COLLECTIONS: "crowdsecurity/traefik crowdsecurity/http-cve"
+    expose:
+      - "8080"
+    volumes:
+      - /var/log/traefik:/var/log/traefik:ro
+      - /opt/crowdsec-db:/var/lib/crowdsec/data
+      - /var/log/auth.log:/var/log/auth.log:ro
+      - /var/log/syslog:/var/log/syslog:ro
+      - /opt/crowdsec:/etc/crowdsec
+    restart: unless-stopped
+    labels:
+      - traefik.enable=false
+    networks:
+      - t2_proxy
+      - petermac_com
+
